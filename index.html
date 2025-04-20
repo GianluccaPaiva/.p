@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Crimes</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      background: #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      text-align: center;
+      display: none; /* Esconde até a senha ser verificada */
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: #ecf0f1;
+    }
+    #crime {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #ecf0f1;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: transparent;
+      color: #e74c3c;
+      border: 2px solid #e74c3c;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover {
+      background-color: #e74c3c;
+      color: white;
+    }
+    #historico {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #34495e;
+      border-radius: 5px;
+      max-height: 200px;
+      overflow-y: auto;
+      color: white;
+    }
+    .crime-item {
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background-color: #16a085;
+      border-radius: 5px;
+      color: #fff;
+    }
+  </style>
+  <script>
+    // Hash SHA-256 da senha "homemaranha1429"
+    const senhaHash = "706cd158340e53b830554bf40fae9126b5647066807498d58dc3908fd66b3824";
+    async function verificarSenha() {
+      const input = prompt("Digite a senha para acessar o Sistema de Crimes:");
+      if (!input) {
+        alert("Senha necessária!");
+        return;
+      }
+      const enc = new TextEncoder();
+      const data = enc.encode(input);
+      const hashBuf = await crypto.subtle.digest('SHA-256', data);
+      const hashArr = Array.from(new Uint8Array(hashBuf));
+      const hashHex = hashArr.map(b=>b.toString(16).padStart(2,'0')).join('');
+      if (hashHex === senhaHash) {
+        document.body.style.display = 'flex';
+      } else {
+        alert("Senha incorreta! Acesso negado.");
+        document.write("<h1 style='color:white;text-align:center;'>Acesso negado.</h1>");
+      }
+    }
+    document.addEventListener('DOMContentLoaded', verificarSenha);
+  </script>
+</head>
+</head>
+<body>
+  <h2>🚨 Sistema de Crimes</h2>
+  <p id="crime"></p>
+  <button onclick="mostrarCrime()">🔍 Procurar crime</button>
+  <button onclick="resolverCrime()" id="resolverBtn">✅ Resolver Crime</button>
+  <button onclick="baixarHistorico()">📥 Baixar Histórico</button>
+  <button onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+
+  <div id="historico">
+    <h3>Histórico de Crimes</h3>
+  </div>
+
+  <script>
+    const crimes = [
+  { nome: "Assalto", vilao: "Saltador" },
+  { nome: "Roubo de banco", vilao: "Camaleão" },
+  { nome: "Ataque a civis", vilao: "Venom" },
+  { nome: "Explosão em prédio", vilao: "Duende Verde" },
+  { nome: "Furto de tecnologia", vilao: "Shocker" },
+  { nome: "Sabotagem", vilao: "Rino" },
+  { nome: "Invasão de laboratório", vilao: "Mysterio" },
+  { nome: "Sequestro", vilao: "Abutre" },
+  { nome: "Assalto a carro-forte", vilao: "Escorpião" },
+  { nome: "Roubo de joias", vilao: "Gata Negra" },
+  { nome: "Venda de drogas", vilao: "Rei do Crime" },
+  { nome: "Tráfico de armas", vilao: "Shocker" },
+  { nome: "Corrupção policial", vilao: "Kingpin" },
+  { nome: "Extorsão", vilao: "Joker" },
+  { nome: "Hacking de sistemas bancários", vilao: "Mister Negative" },
+  { nome: "Destruição de propriedade", vilao: "Kraven, O Caçador" },
+  { nome: "Envenenamento", vilao: "Doutor Octopus" },
+  { nome: "Assalto a mão armada", vilao: "Vingador" },
+  { nome: "Roubo de carros", vilao: "Chacal" },
+  { nome: "Sabotagem de veículos", vilao: "Rino" },
+  { nome: "Pirâmide financeira", vilao: "Norman Osborn" },
+  { nome: "Tráfico humano", vilao: "Rei do Crime" },
+  { nome: "Roubo de informações secretas", vilao: "Chacal" },
+  { nome: "Hackeamento de satélites", vilao: "Mister Negative" },
+  { nome: "Rastreamento de dados", vilao: "Mysterio" },
+  { nome: "Extorsão de grandes empresas", vilao: "Duende Verde" },
+  { nome: "Sequestro de cientistas", vilao: "Electro" },
+  { nome: "Venda de informações confidenciais", vilao: "Chacal" },
+  { nome: "Ataque a centro de pesquisa", vilao: "Mysterio" },
+  { nome: "Roubo de drogas farmacêuticas", vilao: "Venom" },
+  { nome: "Destruição de arquivos", vilao: "Vingador" },
+  { nome: "Traficante de diamantes", vilao: "Gata Negra" },
+  { nome: "Furto de material nuclear", vilao: "Duende Verde" },
+  { nome: "Fraude corporativa", vilao: "Norman Osborn" },
+  { nome: "Extorsão em bairro", vilao: "Kingpin" },
+  { nome: "Assassinato por encomenda", vilao: "Electro" },
+  { nome: "Roubo de armamentos militares", vilao: "Kraven, O Caçador" },
+  { nome: "Roubos em casas de luxo", vilao: "Gata Negra" },
+  { nome: "Sequestro de herdeiros", vilao: "Escorpião" },
+  { nome: "Fraude de seguros", vilao: "Rei do Crime" },
+  { nome: "Roubo de arte", vilao: "Mysterio" },
+  { nome: "Assassinato", vilao: "Venom" },
+  { nome: "Extorsão virtual", vilao: "Chacal" },
+  { nome: "Ameaça terrorista", vilao: "Doutor Octopus" },
+  { nome: "Explosão em fábrica", vilao: "Shocker" },
+  { nome: "Roubo de carros esportivos", vilao: "Rino" },
+  { nome: "Fraude bancária", vilao: "Norman Osborn" },
+  { nome: "Furto em supermercado", vilao: "Saltador" },
+  { nome: "Roubos de identidade", vilao: "Rei do Crime" },
+  { nome: "Golpe de pirâmide", vilao: "Mister Negative" },
+  { nome: "Hackeamento de empresas", vilao: "Vingador" },
+  { nome: "Venda ilegal de medicamentos", vilao: "Electro" },
+  { nome: "Traficante de órgãos", vilao: "Kingpin" },
+  { nome: "Assalto ao mercado de ações", vilao: "Vingador" },
+  { nome: "Falsificação de documentos", vilao: "Shocker" },
+  { nome: "Desvio de verba pública", vilao: "Mysterio" },
+  { nome: "Sequestro de celebridades", vilao: "Electro" },
+  { nome: "Explosão em ponte", vilao: "Kraven, O Caçador" },
+  { nome: "Vingança contra autoridades", vilao: "Duende Verde" },
+  { nome: "Fraude eleitoral", vilao: "Norman Osborn" },
+  { nome: "Assalto ao sistema bancário", vilao: "Vingador" },
+  { nome: "Furto de identidade", vilao: "Chacal" },
+  { nome: "Destruição de equipamentos públicos", vilao: "Venom" },
+  { nome: "Corrupção em licitações", vilao: "Kingpin" },
+  { nome: "Vingança contra funcionários", vilao: "Doutor Octopus" },
+  { nome: "Assassinato político", vilao: "Mister Negative" },
+  { nome: "Furto de energia elétrica", vilao: "Venom" },
+  { nome: "Extorsão digital", vilao: "Chacal" },
+  { nome: "Roubos em bairros residenciais", vilao: "Saltador" },
+  { nome: "Roubo de equipamentos militares", vilao: "Escorpião" },
+  { nome: "Vingança contra empresários", vilao: "Kingpin" },
+  { nome: "Espionagem industrial", vilao: "Duende Verde" },
+  { nome: "Furto de veículos militares", vilao: "Rino" },
+  { nome: "Roubo de armas de fogo", vilao: "Mister Negative" },
+  { nome: "Explosão em supermercado", vilao: "Electro" },
+  { nome: "Extorsão a bancos", vilao: "Mister Negative" },
+  { nome: "Golpe de pirâmide financeira", vilao: "Norman Osborn" },
+  { nome: "Assalto ao sistema bancário", vilao: "Vingador" },
+  { nome: "Roubo de peças raras", vilao: "Gata Negra" },
+  { nome: "Assalto a caixa eletrônico", vilao: "Rino" },
+  { nome: "Vingança contra rivais", vilao: "Venom" },
+  { nome: "Fraude bancária online", vilao: "Shocker" },
+  { nome: "Roubo de computadores", vilao: "Mysterio" },
+
+  // Crimes comuns (assaltantes e ladrões sem vilão específico)
+  { nome: "Assalto a loja", vilao: "Ladrão" },
+  { nome: "Roubo de celular", vilao: "Assaltante" },
+  { nome: "Furto de bicicleta", vilao: "Ladrão" },
+  { nome: "Roubo em farmácia", vilao: "Assaltante" },
+  { nome: "Assalto a pedestre", vilao: "Ladrão" },
+  { nome: "Roubo de carteiras", vilao: "Assaltante" },
+  { nome: "Furto em residência", vilao: "Ladrão" },
+  { nome: "Roubos em caixas eletrônicos", vilao: "Assaltante" },
+  { nome: "Roubos em bancos", vilao: "Assaltante" },
+  { nome: "Roubo em supermercado", vilao: "Ladrão" },
+  { nome: "Roubo de veículos", vilao: "Ladrão" },
+  { nome: "Furto de materiais de construção", vilao: "Ladrão" },
+  { nome: "Assalto a transportadora", vilao: "Assaltante" },
+  { nome: "Furto de combustível", vilao: "Ladrão" },
+  { nome: "Assalto a restaurante", vilao: "Ladrão" },
+  { nome: "Roubo em loja de eletrônicos", vilao: "Ladrão" },
+  { nome: "Furto de ferramentas", vilao: "Ladrão" },
+  { nome: "Assalto a posto de gasolina", vilao: "Assaltante" },
+  { nome: "Roubo de alimentos", vilao: "Ladrão" },
+  { nome: "Furto de câmeras de segurança", vilao: "Ladrão" },
+  { nome: "Roubo de carros de luxo", vilao: "Assaltante" },
+  { nome: "Roubos em residência de alto padrão", vilao: "Ladrão" },
+  { nome: "Assalto a casa de câmbio", vilao: "Ladrão" },
+  { nome: "Furto de equipamentos eletrônicos", vilao: "Ladrão" },
+  { nome: "Roubo de documentos", vilao: "Ladrão" },
+  { nome: "Assalto a carga", vilao: "Assaltante" },
+  { nome: "Roubo em depósito", vilao: "Ladrão" },
+  {nome: "Assedio sexual", vilao: "Ladrão"},
+  { nome: "Latrocínio", vilao: "Assaltante" },
+  { nome: "Receptação", vilao: "Ladrão" },
+  { nome: "Feminicídio", vilao: "Assassino" },
+  { nome: "Corrupção", vilao: "Político Corrupto" },
+  { nome: "Peculato", vilao: "Funcionário Público" },
+  { nome: "Prevaricação", vilao: "Servidor Negligente" },
+  { nome: "Violência doméstica", vilao: "Agressor" },
+  { nome: "Estelionato", vilao: "Estelionatário" },
+  { nome: "Falsificação de documentos", vilao: "Falsificador" },
+  { nome: "Desmatamento ilegal", vilao: "Madeireiro Ilegal" },
+  { nome: "Caça ilegal", vilao: "Caçador Clandestino" },
+  { nome: "Poluição ambiental", vilao: "Poluidor" },
+  { nome: "Exploração do trabalho escravo", vilao: "Empresário Explorador" },
+  { nome: "Trabalho infantil", vilao: "Explorador de Crianças" },
+  { nome: "Exploração sexual de menores", vilao: "Abusador" },
+  { nome: "Violência policial", vilao: "Policial Abusivo" },
+  { nome: "Incêndio criminoso", vilao: "Criminoso Incendiário" },
+  { nome: "Formação de quadrilha", vilao: "Líder de Gangue" },
+  { nome: "Difamação", vilao: "Caluniador" },
+  { nome: "Calúnia", vilao: "Caluniador" },
+  { nome: "Injúria", vilao: "Ofensor" },
+  { nome: "Propaganda eleitoral ilegal", vilao: "Candidato Irregular" },
+  { nome: "Compra de votos", vilao: "Corruptor Eleitoral" },
+  { nome: "Corrupção eleitoral", vilao: "Político Corrupto" },
+  { nome: "Falsificação de produtos", vilao: "Falsificador" },
+  { nome: "Violação de direitos autorais", vilao: "Pirata" },
+  { nome: "Pirâmide financeira", vilao: "Golpista" },
+  { nome: "Roubo de identidade", vilao: "Cibercriminoso" },
+  { nome: "Fraude bancária online", vilao: "Hacker" },
+  { nome: "Golpe do falso sequestro", vilao: "Estelionatário" },
+  { nome: "Golpe do bilhete premiado", vilao: "Golpista" },
+  { nome: "Venda de produtos falsificados", vilao: "Vendedor Ilegal" },
+  { nome: "Roubo de cargas", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de gado", vilao: "Abigeatário" },
+  { nome: "Roubo de combustível", vilao: "Ladrão de Combustível" },
+  { nome: "Roubo de cabos de energia", vilao: "Ladrão de Cabos" },
+  { nome: "Roubo de equipamentos agrícolas", vilao: "Ladrão Rural" },
+  { nome: "Roubo de equipamentos médicos", vilao: "Ladrão de Hospitais" },
+  { nome: "Roubo de obras de arte", vilao: "Ladrão de Arte" },
+  { nome: "Roubo de cargas perigosas", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas alimentícias", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas eletrônicas", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas farmacêuticas", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas têxteis", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de bebidas", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de cigarros", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de eletrodomésticos", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de combustíveis", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos químicos", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos perigosos", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos perecíveis", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos não perecíveis", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de limpeza", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de higiene", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de beleza", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de saúde", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de informática", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de tecnologia", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de telecomunicações", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de construção", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de decoração", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de jardinagem", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de papelaria", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de escritório", vilao: "Assaltante de Cargas" },
+  { nome: "Roubo de cargas de produtos de limpeza industrial", vilao: "Assaltante"},
+]
+    let crimeAtendido = false;
+    let historicoCrimes = [];
+    let crimesSelecionados = []; // Guardar os crimes selecionados para resolver
+
+    function mostrarCrime() {
+      // Garante que o crime não seja repetido até ser resolvido
+      if (crimeAtendido) {
+        crimeAtendido = false;
+        document.getElementById("resolverBtn").disabled = false; // Habilita o botão "resolver crime"
+      }
+
+      // Seleciona aleatoriamente de 1 a 5 crimes
+      const numCrimes = Math.floor(Math.random() * 5) + 1;
+
+      // Seleciona crimes aleatórios
+      crimesSelecionados = [];
+      for (let i = 0; i < numCrimes; i++) {
+        const crimeAleatorio = crimes[Math.floor(Math.random() * crimes.length)];
+        crimesSelecionados.push(crimeAleatorio);
+      }
+
+      // Exibe os crimes encontrados
+      let crimeTexto = "🧨 Crimes encontrados:\n";
+      crimesSelecionados.forEach((crime, index) => {
+        crimeTexto += `${index + 1}. Crime: ${crime.nome} - Vilão: ${crime.vilao}\n`;
+      });
+      document.getElementById("crime").innerText = crimeTexto;
+    }
+
+    function resolverCrime() {
+      // Verifica se há crimes para resolver
+      if (crimesSelecionados.length === 0) {
+        console.log("Nenhum crime para resolver.");
+        return; // Se não houver crime, não faz nada
+      }
+
+      // Marca todos os crimes como resolvidos e atualiza o histórico
+      crimesSelecionados.forEach((crime) => {
+        crimeAtendido = true;
+
+        // Adiciona o crime resolvido ao histórico
+        const crimeTexto = `✅ Crime Resolvido: ${crime.nome} (Vilão: ${crime.vilao})`;
+        historicoCrimes.push(crimeTexto);
+      });
+
+      // Atualiza o histórico na tela
+      atualizarHistorico();
+
+      // Desabilita o botão "Resolver Crime"
+      document.getElementById("resolverBtn").disabled = true;
+      document.getElementById("crime").innerText = "✅ Todos os crimes foram resolvidos!";
+    }
+
+    function atualizarHistorico() {
+      const historicoDiv = document.getElementById("historico");
+      historicoDiv.innerHTML = "<h3>Histórico de Crimes</h3>"; // Limpa o histórico antes de atualizar
+
+      historicoCrimes.forEach(crime => {
+        const crimeDiv = document.createElement("div");
+        crimeDiv.classList.add("crime-item");
+        crimeDiv.textContent = crime;
+        historicoDiv.appendChild(crimeDiv);
+      });
+    }
+
+    function baixarHistorico() {
+      // Cria um texto com todos os crimes resolvidos no histórico
+      const textoHistorico = historicoCrimes.join("\n");
+
+      // Cria um arquivo de texto
+      const blob = new Blob([textoHistorico], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'historico_de_crimes.txt';
+      link.click();
+    }
+
+    function limparHistorico() {
+      // Limpa o array do histórico
+      historicoCrimes = [];
+      atualizarHistorico(); // Atualiza a interface para refletir a limpeza
+    }
+  </script>
+</body>
+</html>

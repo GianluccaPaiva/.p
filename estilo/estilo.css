@@ -1,7 +1,9 @@
 body {
   font-family: "Courier New", monospace;
   padding: 1rem;
-  background: #000000;
+  background-image: url('imagem/web.png');
+  background-size: cover;
+  background-position: center;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,7 +17,6 @@ body {
   border-radius: 10px;
   filter: drop-shadow(0 0 10px #e74c3c);
 }
-
 h2 {
   margin-bottom: 1rem;
   color: #e74c3c;
